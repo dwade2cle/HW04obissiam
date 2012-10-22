@@ -30,6 +30,7 @@ public:
 	// Create an empty node
 	Node();
 
+	// Destructor
 	~Node();
 	
 	// Create a node with data in it
@@ -38,10 +39,14 @@ public:
 	// Insert a node with data in the correct spot
 	Node* insertNode(Node* parent, Entry* in, bool leftOrRight);
 
+	// Points a node towards the appropriate node
 	Node* moveDown(Node* node, bool leftOrRight);
 
+	// Adds leaf values. This is only used for entry data, not for the Web structure
 	void leafAdded(Node* node, Entry* in);
 
+	// These methods are used to tell our node should point. They correspond to points on the web 
+	// that would represent areas which are close to the Entries in the node.
 	Node* getLeft(Node* node, short locationType)	{
 		switch (locationType)	{
 		case 0 : return node->parent_->parent_->parent_->left_->left_->right_;

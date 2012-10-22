@@ -124,6 +124,8 @@ void Web::insertTethers(Node* root, char size)	{
 	} else return;
 }
 
+// This function is the workhorse of this class. It uses the other functions and constructors to create the 
+// web, then adds the array of Entry objects.
 void Web::build(Entry* c, int n) {
 	// Create web
 	Web* web = new Web(root_, NUMBITS);
@@ -140,10 +142,10 @@ void Web::build(Entry* c, int n) {
 	web->insertTethers(root_->left_->right_, 2*NUMBITS - 2);
 	web->insertTethers(root_->right_->left_, 2*NUMBITS - 2);
 	web->insertTethers(root_->right_->right_, 2*NUMBITS - 2);
-	
+	// Local variables to help read in values from parameters
 	int testX, testY;
 	double inX, inY;
-	
+	// The current node points to the root;
 	Node* cur = root_;
 	
 	for (int i = 0; i < n; i++)	{
@@ -152,10 +154,13 @@ void Web::build(Entry* c, int n) {
 		testX = (int) pow(10.0, 9) * inX;
 		testY = (int) pow(10.0, 9) * inY;
 		cur = root_;
+		// Deciding where in the web the Entry should go.
+		// It will always go to a node at the edge of our web.
 		for (int j = 32; j > (32 - NUMBITS); j--)	{
 			cur = cur->moveDown(cur, (testX& (1 << j) == 0));
 			cur = cur->moveDown(cur, (testY& (1 << j) == 0));
 		}
+		// Inserts a node with our entry at the desired location
 		cur->leafAdded(cur, &c[i]); 
 	}
 }
