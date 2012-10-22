@@ -75,7 +75,6 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Entry.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Starbucks.h" />
     <ClInclude Include="stdafx.h" />
@@ -83,7 +82,6 @@
     <ClInclude Include="Web.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Entry.cpp" />
     <ClCompile Include="HW04.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="stdafx.cpp">

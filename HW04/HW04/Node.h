@@ -1,4 +1,4 @@
-#include "Entry.h"
+#include "Starbucks.h"
 
 #define HASLEFTCHILD 0
 #define HASRIGHTCHILD 1
@@ -23,6 +23,8 @@ public:
 	// The data that we will need when checking these nodes
 	Entry* data_;
 	char nodeInfo_;
+	short sizeLeaf_;
+
 	
 	// Create an empty node
 	Node();
@@ -33,7 +35,7 @@ public:
 	Node(Entry* in);
 	
 	// Insert a node with data in the correct spot
-	Node* insertNode(Node* parent, Entry* in, bool leftOrRight);
+	Node* insertNode(Node* parent, bool leftOrRight);
 
 	Node* getLeft(Node* node, short locationType)	{
 		switch (locationType)	{

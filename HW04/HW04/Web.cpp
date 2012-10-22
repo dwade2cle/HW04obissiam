@@ -1,7 +1,17 @@
+/** Author: Eddie Obissi
+This class creates a web-like data structure, whose initial nodes provide spatial organization, 
+and whose final nodes have information that a user might like to use.  
+
+All methods are original, and may be used by anyone.
+*/
+
 #include "stdafx.h"
 #include "Web.h"
 #include <cmath>
 
+Node* root_;
+
+// Here we have a Web constructor.  It's job is to create the initial nodes for the structure.
 Web::Web(Node* root, char numBits)	{
 	char test;
 	int iterations = pow(2.0, numBits);
@@ -16,7 +26,7 @@ Web::Web(Node* root, char numBits)	{
 				// Check to see if kth bit of i is greater than 0;
 				test = i& (1 << k - 1);
 				// Insert new node (insertNode checks if there is already a node on it's own
-				temp = cur->insertNode(cur, new Entry("Node", count, count), (test == 0));
+				temp = cur->insertNode(cur, (test == 0));
 				// Move cur down the web
 				cur = temp;
 				// Clear test bit so it equals 0 again
@@ -24,7 +34,7 @@ Web::Web(Node* root, char numBits)	{
 
 				// Repeat for j
 				test = j& (1 << k - 1); 
-				temp = cur->insertNode(cur, new Entry("", count, count), (test == 0));
+				temp = cur->insertNode(cur, (test == 0));
 				cur = temp;
 				test &= ~(1 << k - 1); 
 			}
@@ -32,6 +42,8 @@ Web::Web(Node* root, char numBits)	{
 	}
 }
 
+// Here we give spatial information about the node.  There are four types of nodes, and 
+// they branch differently.
 void Web::defineCorner(Node* root, bool leftOrRight)	{
 	// Case root is left
 	if (leftOrRight == true)	{
@@ -43,6 +55,7 @@ void Web::defineCorner(Node* root, bool leftOrRight)	{
 			defineCorner(root->left_, true);
 			defineCorner(root->right_, false);
 		} else return;
+	// Case root is right
 	} else	{
 	if (root->exists(root, false))	{
 			root->left_->nodeInfo_ |= 1 << LOCATIONBIT0;
@@ -108,5 +121,15 @@ void Web::insertTethers(Node* root, char size)	{
 	} else return;
 }
 
-void build(Entry* c, int n) {};
-Entry* getNearest(double x, double y) {return new Entry();};
+void Web::build(Entry* c, int n) {
+	double test = 0;
+	for (int i = 0; i < n; i++)	{
+		for (int j = 32; j > (32 - NUMBITS*2); j--)	{
+			if (j%2 == 0)	{
+				test = c[n].x& (1 << j);
+				if (
+			}
+		}
+	}
+}
+Entry* Web::getNearest(double x, double y) {return new Entry();}
