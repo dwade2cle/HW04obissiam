@@ -9,15 +9,18 @@ All methods are original, and may be used by anyone.
 #include "Web.h"
 #include <cmath>
 
-Node* root_;
+//Default constructor
+Web::Web(Node* root)	{
+	root_ = root;
+};
 
 // Here we have a Web constructor.  It's job is to create the initial nodes for the structure.
 Web::Web(Node* root, char numBits)	{
+	root_  = root;
 	char test;
 	int iterations = pow(2.0, numBits);
 	int count = 0;
 	Node* temp;
-	//Node* cur = root;
 	for (int i = 0; i < iterations; i++)	{
 		for (int j = 0; j < iterations; j++)	{
 			Node* cur = root;
@@ -26,7 +29,7 @@ Web::Web(Node* root, char numBits)	{
 				// Check to see if kth bit of i is greater than 0;
 				test = i& (1 << k - 1);
 				// Insert new node (insertNode checks if there is already a node on it's own
-				temp = cur->insertNode(cur, (test == 0));
+				temp = cur->insertNode(cur, new Entry(), (test == 0));
 				// Move cur down the web
 				cur = temp;
 				// Clear test bit so it equals 0 again
@@ -34,7 +37,7 @@ Web::Web(Node* root, char numBits)	{
 
 				// Repeat for j
 				test = j& (1 << k - 1); 
-				temp = cur->insertNode(cur, (test == 0));
+				temp = cur->insertNode(cur, new Entry(), (test == 0));
 				cur = temp;
 				test &= ~(1 << k - 1); 
 			}
@@ -122,14 +125,38 @@ void Web::insertTethers(Node* root, char size)	{
 }
 
 void Web::build(Entry* c, int n) {
-	double test = 0;
+	// Create web
+	Web* web = new Web(root_, NUMBITS);
+	// Set values at first two child nodes
+	root_->left_->nodeInfo_ |= 0 << LOCATIONBIT0;
+	root_->left_->nodeInfo_ |= 0 << LOCATIONBIT1;
+	root_->right_->nodeInfo_ |= 0 << LOCATIONBIT0;
+	root_->right_->nodeInfo_ |= 1 << LOCATIONBIT1;	
+	// Set values at all the other nodes
+	web->defineCorner(root_->left_, true);
+	web->defineCorner(root_->right_, false);
+	// Tie nodes together to form web
+	web->insertTethers(root_->left_->left_, 2*NUMBITS - 2);
+	web->insertTethers(root_->left_->right_, 2*NUMBITS - 2);
+	web->insertTethers(root_->right_->left_, 2*NUMBITS - 2);
+	web->insertTethers(root_->right_->right_, 2*NUMBITS - 2);
+	
+	int testX, testY;
+	double inX, inY;
+	
+	Node* cur = root_;
+	
 	for (int i = 0; i < n; i++)	{
-		for (int j = 32; j > (32 - NUMBITS*2); j--)	{
-			if (j%2 == 0)	{
-				test = c[n].x& (1 << j);
-				if (
-			}
+		inX = c[i].x;
+		inY = c[i].y;
+		testX = (int) pow(10.0, 9) * inX;
+		testY = (int) pow(10.0, 9) * inY;
+		cur = root_;
+		for (int j = 32; j > (32 - NUMBITS); j--)	{
+			cur = cur->moveDown(cur, (testX& (1 << j) == 0));
+			cur = cur->moveDown(cur, (testY& (1 << j) == 0));
 		}
+		cur->leafAdded(cur, &c[i]); 
 	}
 }
 Entry* Web::getNearest(double x, double y) {return new Entry();}

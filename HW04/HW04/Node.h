@@ -5,6 +5,7 @@
 #define LOCATIONBIT1 2
 #define LOCATIONBIT0 3
 #define BEENCHECKED 4
+#define ELEMENTADDED 5
 
 class Node	{
 public:
@@ -35,7 +36,11 @@ public:
 	Node(Entry* in);
 	
 	// Insert a node with data in the correct spot
-	Node* insertNode(Node* parent, bool leftOrRight);
+	Node* insertNode(Node* parent, Entry* in, bool leftOrRight);
+
+	Node* moveDown(Node* node, bool leftOrRight);
+
+	void leafAdded(Node* node, Entry* in);
 
 	Node* getLeft(Node* node, short locationType)	{
 		switch (locationType)	{
