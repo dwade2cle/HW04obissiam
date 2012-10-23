@@ -7,7 +7,6 @@ All methods are original, and may be used by anyone.
 
 #include "stdafx.h"
 #include "Web.h"
-#include <cmath>
 
 //Default constructor
 Web::Web(Node* root)	{
@@ -90,32 +89,32 @@ void Web::insertTethers(Node* root, char size)	{
 		zero->bottom_Middle_ = zero->getBM(zero, 0);
 		zero->bottom_Right_ = zero->getBR(zero, 0);
 
-		one->middle_Left_ = one->getLeft(one, 0);
-		one->middle_Right_ = one->getRight(one, 0);
-		one->top_Right_ = one->getTL(one, 0);
-		one->top_Middle_ = one->getTM(one, 0);
-		one->top_Right_ = one->getTR(one, 0);
-		one->bottom_Right_ = one->getBL(one, 0);
-		one->bottom_Middle_ = one->getBM(one, 0);
-		one->bottom_Right_ = one->getBR(one, 0);
+		one->middle_Left_ = one->getLeft(one, 1);
+		one->middle_Right_ = one->getRight(one, 1);
+		one->top_Right_ = one->getTL(one, 1);
+		one->top_Middle_ = one->getTM(one, 1);
+		one->top_Right_ = one->getTR(one, 1);
+		one->bottom_Right_ = one->getBL(one, 1);
+		one->bottom_Middle_ = one->getBM(one, 1);
+		one->bottom_Right_ = one->getBR(one, 1);
 
-		two->middle_Left_ = two->getLeft(two, 0);
-		two->middle_Right_ = two->getRight(two, 0);
-		two->top_Right_ = two->getTL(two, 0);
-		two->top_Middle_ = two->getTM(two, 0);
-		two->top_Right_ = two->getTR(two, 0);
-		two->bottom_Right_ = two->getBL(two, 0);
-		two->bottom_Middle_ = two->getBM(two, 0);
-		two->bottom_Right_ = two->getBR(two, 0);
+		two->middle_Left_ = two->getLeft(two, 2);
+		two->middle_Right_ = two->getRight(two, 2);
+		two->top_Right_ = two->getTL(two, 2);
+		two->top_Middle_ = two->getTM(two, 2);
+		two->top_Right_ = two->getTR(two, 2);
+		two->bottom_Right_ = two->getBL(two, 2);
+		two->bottom_Middle_ = two->getBM(two, 2);
+		two->bottom_Right_ = two->getBR(two, 2);
 
-		three->middle_Left_ = three->getLeft(three, 0);
-		three->middle_Right_ = three->getRight(three, 0);
-		three->top_Right_ = three->getTL(three, 0);
-		three->top_Middle_ = three->getTM(three, 0);
-		three->top_Right_ = three->getTR(three, 0);
-		three->bottom_Right_ = three->getBL(three, 0);
-		three->bottom_Middle_ = three->getBM(three, 0);
-		three->bottom_Right_ = three->getBR(three, 0);
+		three->middle_Left_ = three->getLeft(three, 3);
+		three->middle_Right_ = three->getRight(three, 3);
+		three->top_Right_ = three->getTL(three, 3);
+		three->top_Middle_ = three->getTM(three, 3);
+		three->top_Right_ = three->getTR(three, 3);
+		three->bottom_Right_ = three->getBL(three, 3);
+		three->bottom_Middle_ = three->getBM(three, 3);
+		three->bottom_Right_ = three->getBR(three, 3);
 
 		insertTethers(zero, newSize);
 		insertTethers(one, newSize);
@@ -127,21 +126,6 @@ void Web::insertTethers(Node* root, char size)	{
 // This function is the workhorse of this class. It uses the other functions and constructors to create the 
 // web, then adds the array of Entry objects.
 void Web::build(Entry* c, int n) {
-	// Create web
-	Web* web = new Web(root_, NUMBITS);
-	// Set values at first two child nodes
-	root_->left_->nodeInfo_ |= 0 << LOCATIONBIT0;
-	root_->left_->nodeInfo_ |= 0 << LOCATIONBIT1;
-	root_->right_->nodeInfo_ |= 0 << LOCATIONBIT0;
-	root_->right_->nodeInfo_ |= 1 << LOCATIONBIT1;	
-	// Set values at all the other nodes
-	web->defineCorner(root_->left_, true);
-	web->defineCorner(root_->right_, false);
-	// Tie nodes together to form web
-	web->insertTethers(root_->left_->left_, 2*NUMBITS - 2);
-	web->insertTethers(root_->left_->right_, 2*NUMBITS - 2);
-	web->insertTethers(root_->right_->left_, 2*NUMBITS - 2);
-	web->insertTethers(root_->right_->right_, 2*NUMBITS - 2);
 	// Local variables to help read in values from parameters
 	int testX, testY;
 	double inX, inY;
@@ -164,4 +148,17 @@ void Web::build(Entry* c, int n) {
 		cur->leafAdded(cur, &c[i]); 
 	}
 }
-Entry* Web::getNearest(double x, double y) {return new Entry();}
+
+Entry* Web::getNearest(double x, double y) {
+	// The current node points to the root;
+	Node* cur = root_; Entry* e = new Entry();
+	e->x = x; e->y = y;
+	// Work our way down to the appropriate node
+	int xInt = (int) x; int yInt = (int) y;
+	for (int i = 32; i > (32 - NUMBITS); i--)	{
+		cur = cur->moveDown(cur, (xInt& (1 << i) == 0));
+		cur = cur->moveDown(cur, (yInt& (1 << i) == 0));
+	}
+	cur = cur->searchThreads(cur, e);
+	return cur->data_;
+}
