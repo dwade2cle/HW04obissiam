@@ -1,5 +1,8 @@
 #include "Starbucks.h"
 #include <cmath>
+#include <iostream>
+
+using namespace std;
 
 #define HASLEFTCHILD 0
 #define HASRIGHTCHILD 1

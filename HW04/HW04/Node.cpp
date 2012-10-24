@@ -51,37 +51,39 @@ bool Node::exists(Node* node, bool leftOrRight)	{
 }
 
 Node* Node::moveDown(Node* node, bool leftOrRight)	{
+	//leftOrRight ? cout << "LEFT" << endl : cout << "RIGHT" << endl;
 	return leftOrRight ? node->left_ : node->right_;
 }
 
 void Node::leafAdded(Node* node, Entry* in)	{
 	double x1, x2, y1, y2, distance1, distance2;
 	Node* temp;
-	//if both |x1 - x2| <= 0.00001 and |y1 - y2| < 0.00001, return
-	x1 = node->data_->x; y1 = node->data_->y;
-	x2 = in->x; y2 = in->y;
-	if (abs(x1-x2) <= 0.00001 && abs(x1-x2) <= 0.00001) return;
-	else if (node->exists(node, true))	{
-		distance1 = sqrt(x1*x1 + y1*y1);
-		distance2 = sqrt(x2*x2 + y2*y2);
-		if(distance2 < distance1)	{
-			temp = node->parent_;
-			Node* newNode = new Node(in);
-			newNode->left_ = node;
-			node->parent_ = newNode;
-			newNode->parent_ = temp;
-			temp->left_ = newNode;
-		} else leafAdded(node->left_, in);
-	} else	{
+	if (!node->exists(node, true))	{
+		node->nodeInfo_ |= 1 << HASLEFTCHILD;
 		Node* newNode = new Node(in);
 		node->left_ = newNode;
 		newNode->parent_ = node;
+		return;
+	} else {
+		//if both |x1 - x2| <= 0.00001 and |y1 - y2| < 0.00001, return
+		x1 = node->left_->data_->x; y1 = node->left_->data_->y;
+		x2 = in->x; y2 = in->y;
+		if (abs(x1-x2) <= 0.00001 && abs(x1-x2) <= 0.00001) return;
+		distance1 = sqrt(x1*x1 + y1*y1);
+		distance2 = sqrt(x2*x2 + y2*y2);
+		if(distance2 < distance1)	{
+			Node* newNode = new Node(in);
+			newNode->left_ = node->left_;
+			node->left_->parent_ = newNode;
+			newNode->parent_ = node;
+			node->left_ = newNode;
+		} else leafAdded(node->left_, in);
 	}
 }
 
 Node* Node::searchLeaf(Node* node, double x, double y, double closest)	{
 	double distance;
-	int x1, y1;
+	double x1, y1;
 	if (node->exists(node, true))	{
 		// Indicated that this node has been checked.
 		node->nodeInfo_ |= 1 << BEENCHECKED;
@@ -114,39 +116,39 @@ Node* Node::searchThreads(Node* node, Entry* in)	{
 	e->y = FARVALUE;
 	// This comes in handy if we have to widen our search
 	node = traverseWeb(node);
-	if (node->exists(node, true)) outNode = node->searchLeaf(node->left_, in->x, in->y, 2);
+	if (node->exists(node, true)) outNode = node->searchLeaf(node->left_, in->x, in->y, FARVALUE);
 	else outNode = new Node(e);
 
 	if (node->middle_Left_ != NULL)	{
-		temp = searchLeaf(node->middle_Left_, in->x, in->y, 2);
+		temp = searchLeaf(node->middle_Left_, in->x, in->y, FARVALUE);
 		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
 	}
 	if (node->top_Left_ != NULL)	{
-		temp = searchLeaf(node->top_Left_, in->x, in->y, 2);
+		temp = searchLeaf(node->top_Left_, in->x, in->y, FARVALUE);
 		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
 	}
 	if (node->top_Middle_ != NULL)	{
-		temp = searchLeaf(node->top_Middle_, in->x, in->y, 2);
+		temp = searchLeaf(node->top_Middle_, in->x, in->y, FARVALUE);
 		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
 	}
 	if (node->top_Right_ != NULL)	{
-		temp = searchLeaf(node->top_Right_, in->x, in->y, 2);
+		temp = searchLeaf(node->top_Right_, in->x, in->y, FARVALUE);
 		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
 	}
 	if (node->middle_Right_ != NULL)	{
-		temp = searchLeaf(node->middle_Right_, in->x, in->y, 2);
+		temp = searchLeaf(node->middle_Right_, in->x, in->y, FARVALUE);
 		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
 	}
 	if (node->bottom_Right_ != NULL)	{
-		temp = searchLeaf(node->bottom_Right_, in->x, in->y, 2);
+		temp = searchLeaf(node->bottom_Right_, in->x, in->y, FARVALUE);
 		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
 	}
 	if (node->bottom_Middle_ != NULL)	{
-		temp = searchLeaf(node->bottom_Middle_, in->x, in->y, 2);
+		temp = searchLeaf(node->bottom_Middle_, in->x, in->y, FARVALUE);
 		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
 	}
 	if (node->bottom_Left_ != NULL)	{
-		temp = searchLeaf(node->bottom_Left_, in->x, in->y, 2);
+		temp = searchLeaf(node->bottom_Left_, in->x, in->y, FARVALUE);
 		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
 	}
 	if (outNode->data_->x == FARVALUE)	searchThreads(node->parent_->parent_, in);

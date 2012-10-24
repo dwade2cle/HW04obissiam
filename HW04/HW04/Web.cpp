@@ -127,7 +127,7 @@ void Web::insertTethers(Node* root, char size)	{
 // web, then adds the array of Entry objects.
 void Web::build(Entry* c, int n) {
 	// Local variables to help read in values from parameters
-	int testX, testY;
+	unsigned int testX, testY;
 	double inX, inY;
 	// The current node points to the root;
 	Node* cur = root_;
@@ -135,14 +135,14 @@ void Web::build(Entry* c, int n) {
 	for (int i = 0; i < n; i++)	{
 		inX = c[i].x;
 		inY = c[i].y;
-		testX = (int) pow(10.0, 9) * inX;
-		testY = (int) pow(10.0, 9) * inY;
+		testX = (unsigned int) pow(2.0, NUMBITS) * inX;
+		testY = (unsigned int) pow(2.0, NUMBITS) * inY;
 		cur = root_;
 		// Deciding where in the web the Entry should go.
 		// It will always go to a node at the edge of our web.
-		for (int j = 32; j > (32 - NUMBITS); j--)	{
-			cur = cur->moveDown(cur, (testX& (1 << j) == 0));
-			cur = cur->moveDown(cur, (testY& (1 << j) == 0));
+		for (int j = NUMBITS - 1; j >= 0; j--)	{
+			cur = cur->moveDown(cur, ((testX& (1 << j)) == 0));
+			cur = cur->moveDown(cur, ((testY& (1 << j)) == 0));
 		}
 		// Inserts a node with our entry at the desired location
 		cur->leafAdded(cur, &c[i]); 
@@ -154,10 +154,11 @@ Entry* Web::getNearest(double x, double y) {
 	Node* cur = root_; Entry* e = new Entry();
 	e->x = x; e->y = y;
 	// Work our way down to the appropriate node
-	int xInt = (int) x; int yInt = (int) y;
-	for (int i = 32; i > (32 - NUMBITS); i--)	{
-		cur = cur->moveDown(cur, (xInt& (1 << i) == 0));
-		cur = cur->moveDown(cur, (yInt& (1 << i) == 0));
+	unsigned int xInt = (unsigned int) pow(2.0, NUMBITS) * x;
+	unsigned int yInt = (unsigned int) pow(2.0, NUMBITS) * y;
+	for (int i = NUMBITS - 1; i >= 0; i--)	{
+		cur = cur->moveDown(cur, ((xInt& (1 << i)) == 0));
+		cur = cur->moveDown(cur, ((yInt& (1 << i)) == 0));
 	}
 	cur = cur->searchThreads(cur, e);
 	return cur->data_;

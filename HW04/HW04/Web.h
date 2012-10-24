@@ -1,7 +1,7 @@
 #include "Node.h"
 #include "Starbucks.h"
 
-#define NUMBITS 3
+#define NUMBITS 6
 class Web : public Starbucks
 {
 	public:

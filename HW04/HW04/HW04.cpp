@@ -10,25 +10,12 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	Entry listValues[6];
-	listValues[0].identifier = "Zero";
-	listValues[0].x = .25;
-	listValues[0].y = .25;
-	listValues[1].identifier = "Zero";
-	listValues[1].x = .50;
-	listValues[1].y = .50;
-	listValues[2].identifier = "Zero";
-	listValues[2].x = .50;
-	listValues[2].y = .75;
-	listValues[3].identifier = "Zero";
-	listValues[3].x = .89;
-	listValues[3].y = .42524;
-	listValues[4].identifier = "Zero";
-	listValues[4].x = .4525;
-	listValues[4].y = .246525;
-	listValues[5].identifier = "Zero";
-	listValues[5].x = .25;
-	listValues[5].y = .25;
+	Entry listValues[1000];
+	for(int i = 0; i < 1000; i++)	{
+		listValues[i].identifier = "Zero";
+		listValues[i].x = .001*i;
+		listValues[i].y = .001*i;
+	}
 	Node* root_ = new Node();
 	Web* web = new Web(root_, NUMBITS);
 	// Create web
@@ -46,8 +33,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	web->insertTethers(root_->left_->right_, 2*NUMBITS - 2);
 	web->insertTethers(root_->right_->left_, 2*NUMBITS - 2);
 	web->insertTethers(root_->right_->right_, 2*NUMBITS - 2);
-	web->build(listValues, 6);
-	Entry* e = web->getNearest(0.25, 0.25);
+	web->build(listValues, 999);
+	Entry* e = web->getNearest(0.5, 0.5);
 	cout << e->x << endl << e->y << endl; 
 
 	return 0;
