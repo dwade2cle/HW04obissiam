@@ -1,17 +1,12 @@
-/** Author: Eddie Obissi
-This class creates a web-like data structure, whose initial nodes provide spatial organization, 
-and whose final nodes have information that a user might like to use.  
-
-All methods are original, and may be used by anyone.
-*/
-
 #include "stdafx.h"
 #include "Web.h"
 
-//Default constructor
+// Default constructor sets root_ to NULL
+Web::Web() {root_ = NULL;}
+//Constructor sets root value
 Web::Web(Node* root)	{
 	root_ = root;
-};
+}
 
 // Here we have a Web constructor.  It's job is to create the initial nodes for the structure.
 Web::Web(Node* root, char numBits)	{
@@ -72,14 +67,14 @@ void Web::defineCorner(Node* root, bool leftOrRight)	{
 
 // Assumes a web of hieght 4 or greater
 void Web::insertTethers(Node* root, char size)	{
-	
+	// Each grandchild will have pointers to other nodes surounding them.
 	if (size > 1)	{
 		char newSize = size - 2;
 		Node* zero = root->left_->left_;
 		Node* one = root->left_->right_;
 		Node* two = root->right_->left_;
 		Node* three = root->right_->right_;
-
+		// Points to the seven surrounding blocks
 		zero->middle_Left_ = zero->getLeft(zero, 0);
 		zero->middle_Right_ = zero->getRight(zero, 0);
 		zero->top_Right_ = zero->getTL(zero, 0);
@@ -116,6 +111,7 @@ void Web::insertTethers(Node* root, char size)	{
 		three->bottom_Middle_ = three->getBM(three, 3);
 		three->bottom_Right_ = three->getBR(three, 3);
 
+		// If we haven'treached the end of the web, the method is called recursively.
 		insertTethers(zero, newSize);
 		insertTethers(one, newSize);
 		insertTethers(two, newSize);
@@ -126,22 +122,41 @@ void Web::insertTethers(Node* root, char size)	{
 // This function is the workhorse of this class. It uses the other functions and constructors to create the 
 // web, then adds the array of Entry objects.
 void Web::build(Entry* c, int n) {
+	// Creat the initail web structure
+	Web* web = new Web(root_, NUMBITS);
+	// Set values at first two child nodes
+	root_->left_->nodeInfo_ |= 0 << LOCATIONBIT0;
+	root_->left_->nodeInfo_ |= 0 << LOCATIONBIT1;
+	root_->right_->nodeInfo_ |= 0 << LOCATIONBIT0;
+	root_->right_->nodeInfo_ |= 1 << LOCATIONBIT1;	
+	// Set values at all the other nodes so we know which 
+	// surrounding nodes to point to.  
+	web->defineCorner(root_->left_, true);
+	web->defineCorner(root_->right_, false);
+	// Tie nodes together to form web
+	web->insertTethers(root_->left_->left_, 2*NUMBITS - 2);
+	web->insertTethers(root_->left_->right_, 2*NUMBITS - 2);
+	web->insertTethers(root_->right_->left_, 2*NUMBITS - 2);
+	web->insertTethers(root_->right_->right_, 2*NUMBITS - 2);
 	// Local variables to help read in values from parameters
 	unsigned int testX, testY;
 	double inX, inY;
 	// The current node points to the root;
 	Node* cur = root_;
-	
 	for (int i = 0; i < n; i++)	{
 		inX = c[i].x;
 		inY = c[i].y;
+		// Shift the double bits over for use when we look for the leaf node.
 		testX = (unsigned int) pow(2.0, NUMBITS) * inX;
 		testY = (unsigned int) pow(2.0, NUMBITS) * inY;
+		// Start from the root.
 		cur = root_;
 		// Deciding where in the web the Entry should go.
 		// It will always go to a node at the edge of our web.
 		for (int j = NUMBITS - 1; j >= 0; j--)	{
+			// The first bits of the x coordinate choose which way the child node goes
 			cur = cur->moveDown(cur, ((testX& (1 << j)) == 0));
+			// The first bits of y choose which way the grandchild node is
 			cur = cur->moveDown(cur, ((testY& (1 << j)) == 0));
 		}
 		// Inserts a node with our entry at the desired location

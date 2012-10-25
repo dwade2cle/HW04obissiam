@@ -1,16 +1,22 @@
+/**
+	A class that creates, manipulates, and searches the nodes that are used in the Web class.
+	The more complex functions exist here, as they require recursion to function properly.
+*/
+
 #include "Starbucks.h"
 #include <cmath>
 #include <iostream>
 
 using namespace std;
-
+// Bit values that assist in identifying different properties of the nodes
 #define HASLEFTCHILD 0
 #define HASRIGHTCHILD 1
 #define LOCATIONBIT1 2
 #define LOCATIONBIT0 3
 #define BEENCHECKED 4
 #define ELEMENTADDED 5
-
+// A default value used when searching to ensure the proper Node is returned.
+// This value must be larger than the highest value in our input array.
 #define FARVALUE 2
 
 class Node	{
@@ -54,18 +60,19 @@ public:
 	// These nodes will go linearly, but will be organized from closest to the origin to the furthest
 	void leafAdded(Node* node, Entry* in);
 
-	// Searches for the values in a leaf node
+	// Searches for the closest value to our Entry in a leaf node
 	Node* searchLeaf(Node* ancestor, Node* descendant, Entry* in);
 
 	// Navigates the user through the web when searching
 	Node* traverseWeb(Node* node, Entry* in);
 
-	// Searches in the surrounding threads 
+	// Searches in the surrounding threads which represent blocks of space 
 	Node* searchThreads(Node* node, Entry* in);
 
+	// A convenience method used when searching for the closest location
 	double distance(Entry* in, Node* node);
 
-	// These methods are used to tell our node should point. They correspond to points on the web 
+	// These methods are used to tell where our node should point. They correspond to points on the web 
 	// that would represent areas which are close to the Entries in the node.
 	Node* getLeft(Node* node, short locationType)	{
 		switch (locationType)	{
