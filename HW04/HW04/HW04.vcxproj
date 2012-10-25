@@ -73,6 +73,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\..\Downloads\HW04StarterFiles\HW04StarterFiles\Starbucks_2006.csv" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>

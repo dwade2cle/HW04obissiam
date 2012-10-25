@@ -17,7 +17,7 @@ All methods are original, and may be used by anyone.
 #include "Node.h"
 #include "Starbucks.h"
 
-#define NUMBITS 6
+#define NUMBITS 2
 class Web : public Starbucks
 {
 	public:

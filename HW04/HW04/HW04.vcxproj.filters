@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="..\..\..\..\..\Downloads\HW04StarterFiles\HW04StarterFiles\Starbucks_2006.csv" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
