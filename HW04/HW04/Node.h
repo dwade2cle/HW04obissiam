@@ -55,10 +55,10 @@ public:
 	void leafAdded(Node* node, Entry* in);
 
 	// Searches for the values in a leaf node
-	Node* searchLeaf(Node* node, double x, double y, double closest);
+	Node* searchLeaf(Node* ancestor, Node* descendant, Entry* in);
 
 	// Navigates the user through the web when searching
-	Node* traverseWeb(Node* node);
+	Node* traverseWeb(Node* node, Entry* in);
 
 	// Searches in the surrounding threads 
 	Node* searchThreads(Node* node, Entry* in);

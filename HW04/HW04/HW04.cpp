@@ -13,7 +13,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	Entry listValues[1000];
 	for(int i = 0; i < 1000; i++)	{
 		listValues[i].identifier = "Zero";
-		listValues[i].x = .001*i;
+		listValues[i].x = .2;
 		listValues[i].y = .001*i;
 	}
 	Node* root_ = new Node();
@@ -34,7 +34,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	web->insertTethers(root_->right_->left_, 2*NUMBITS - 2);
 	web->insertTethers(root_->right_->right_, 2*NUMBITS - 2);
 	web->build(listValues, 999);
-	Entry* e = web->getNearest(0.5, 0.5);
+	Entry* e = web->getNearest(0.502, 0.502);
 	cout << e->x << endl << e->y << endl; 
 
 	return 0;

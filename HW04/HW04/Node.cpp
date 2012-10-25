@@ -57,7 +57,6 @@ Node* Node::moveDown(Node* node, bool leftOrRight)	{
 
 void Node::leafAdded(Node* node, Entry* in)	{
 	double x1, x2, y1, y2, distance1, distance2;
-	Node* temp;
 	if (!node->exists(node, true))	{
 		node->nodeInfo_ |= 1 << HASLEFTCHILD;
 		Node* newNode = new Node(in);
@@ -81,77 +80,61 @@ void Node::leafAdded(Node* node, Entry* in)	{
 	}
 }
 
-Node* Node::searchLeaf(Node* node, double x, double y, double closest)	{
-	double distance;
-	double x1, y1;
-	if (node->exists(node, true))	{
-		// Indicated that this node has been checked.
-		node->nodeInfo_ |= 1 << BEENCHECKED;
-		x1 = node->left_->data_->x;
-		y1 = node->left_->data_->y;
-		distance = sqrt(abs(x - x1)*abs(x - x1) + abs(y - y1)*abs(y - y1));
-		if (distance < closest) closest = distance;
-		searchLeaf(node->left_, x, y, closest);
-	} else return node;
+Node* Node::searchLeaf(Node* ancestor, Node* descendant, Entry* in)	{
+	bool ancestorCloser;
+	if (distance(in, ancestor) < distance(in, descendant)) ancestorCloser = true;
+	else ancestorCloser = false;
+	if (ancestor->exists(descendant, true))	{
+		ancestorCloser ? searchLeaf(ancestor, descendant->left_, in) : 
+			searchLeaf(descendant, descendant->left_, in);	
+	} else if (ancestorCloser) return ancestor;
+	else return descendant;
 }
 
-Node* Node::traverseWeb(Node* node)	{
+Node* Node::traverseWeb(Node* node, Entry* in)	{
 	// If the node has no pointer to the right, it is at the edge of the web
-	//bit = number & (1 << x);
-	short test = node->nodeInfo_& (1 << HASRIGHTCHILD);
-	if (test == 0) return node;
+	Entry* e = new Entry();
+	e->x = FARVALUE; e->y = FARVALUE;
+	Node* LL; Node* LR; Node* RL; Node* RR;
+	double dLL, dLR, dRL, dRR;
+
+	short test = (node->nodeInfo_& (1 << HASRIGHTCHILD));
+	if (test == 0 && node->exists(node, true)) return searchLeaf(new Node(e), node->left_, in);
+	else if (!node->exists(node, true)) return new Node(e);
 	else {
-		traverseWeb(node->left_->left_);
-		traverseWeb(node->left_->right_);
-		traverseWeb(node->right_->left_);
-		traverseWeb(node->right_->right_);
+		LL = traverseWeb(node->left_->left_, in); LR = traverseWeb(node->left_->right_, in);
+		RL = traverseWeb(node->right_->left_, in); RR = traverseWeb(node->right_->right_, in);
+		dLL = LL->distance(in, LL); dLR = LR->distance(in, LR); 
+		dRL = RL->distance(in, RL); dRR = RR->distance(in, RR); 
+		if (dLL < dLR && dLL < dRL && dLL < dRR) return LL;
+		else if (dLR < dRL && dLR < dRR) return LR;
+		else if (dRL < dRR) return RL;
+		else return RR;
 	}
 }
 
 Node* Node::searchThreads(Node* node, Entry* in)	{
-	Node* outNode;
-	Node* temp;
-	Entry* e = new Entry();
-	e->x = FARVALUE;
-	e->y = FARVALUE;
-	// This comes in handy if we have to widen our search
-	node = traverseWeb(node);
-	if (node->exists(node, true)) outNode = node->searchLeaf(node->left_, in->x, in->y, FARVALUE);
-	else outNode = new Node(e);
+	Entry* e = new Entry(); e->x = FARVALUE; e->y = FARVALUE;
+	Node* L; Node* TL; Node* TM; Node* TR; Node* R; Node* BR; Node* BM; Node* BL;
+	Node* outNode = traverseWeb(node, in);
+	node->middle_Left_ != NULL ? L = traverseWeb(middle_Left_, in) : L = new Node(e);
+	if (node->distance(in, L) < node->distance(in, outNode)) outNode = L;
+	node->top_Left_!= NULL ? TL = traverseWeb(top_Left_, in) : TL = new Node(e);
+	if (node->distance(in, TL) < node->distance(in, outNode)) outNode = TL;
+	node->top_Middle_ != NULL ? TM = traverseWeb(top_Middle_, in) : TM = new Node(e);
+	if (node->distance(in, TM) < node->distance(in, outNode)) outNode = TM;
+	node->top_Right_ != NULL ? TR = traverseWeb(top_Right_, in) : TR = new Node(e);
+	if (node->distance(in, TR) < node->distance(in, outNode)) outNode = TR;
+	node->middle_Right_ != NULL ? R = traverseWeb(middle_Right_, in) : R = new Node(e);
+	if (node->distance(in, R) < node->distance(in, outNode)) outNode = R;
+	node->bottom_Right_ != NULL ? BR = traverseWeb(bottom_Right_, in) : BR = new Node(e);
+	if (node->distance(in, BR) < node->distance(in, outNode)) outNode = BR;
+	node->bottom_Middle_ != NULL ? BM = traverseWeb(bottom_Middle_, in) : BM = new Node(e);
+	if (node->distance(in, BM) < node->distance(in, outNode)) outNode = BM;
+	node->bottom_Left_ != NULL ? BL = traverseWeb(bottom_Left_, in) : BL = new Node(e);
+	if (node->distance(in, BL) < node->distance(in, outNode)) outNode = BL;
 
-	if (node->middle_Left_ != NULL)	{
-		temp = searchLeaf(node->middle_Left_, in->x, in->y, FARVALUE);
-		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
-	}
-	if (node->top_Left_ != NULL)	{
-		temp = searchLeaf(node->top_Left_, in->x, in->y, FARVALUE);
-		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
-	}
-	if (node->top_Middle_ != NULL)	{
-		temp = searchLeaf(node->top_Middle_, in->x, in->y, FARVALUE);
-		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
-	}
-	if (node->top_Right_ != NULL)	{
-		temp = searchLeaf(node->top_Right_, in->x, in->y, FARVALUE);
-		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
-	}
-	if (node->middle_Right_ != NULL)	{
-		temp = searchLeaf(node->middle_Right_, in->x, in->y, FARVALUE);
-		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
-	}
-	if (node->bottom_Right_ != NULL)	{
-		temp = searchLeaf(node->bottom_Right_, in->x, in->y, FARVALUE);
-		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
-	}
-	if (node->bottom_Middle_ != NULL)	{
-		temp = searchLeaf(node->bottom_Middle_, in->x, in->y, FARVALUE);
-		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
-	}
-	if (node->bottom_Left_ != NULL)	{
-		temp = searchLeaf(node->bottom_Left_, in->x, in->y, FARVALUE);
-		if (distance(in, temp) < distance(in, outNode)) outNode = temp;
-	}
-	if (outNode->data_->x == FARVALUE)	searchThreads(node->parent_->parent_, in);
+	if(outNode->data_->x == FARVALUE) searchThreads(node->parent_->parent_, in);
 	else return outNode;
 }
 
